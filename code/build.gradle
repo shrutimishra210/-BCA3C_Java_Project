@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.uniswap'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot backend
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Password hashing only (NOT the full spring-security-starter,
+    // so our custom REST endpoints are not auto-locked behind a login form)
+    implementation 'org.springframework.security:spring-security-crypto'
+
+    // WEBP support for Java's ImageIO (the JDK itself can't decode .webp, so
+    // without this a WEBP photo would upload fine but show as a placeholder).
+    implementation 'org.sejda.imageio:webp-imageio:0.1.6'
+
+    // MySQL driver
+    runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'
+
+    // Swing GUI uses java.net.http.HttpClient (built into the JDK) to call
+    // the Spring Boot REST API, and Jackson (already pulled in by
+    // spring-boot-starter-web) to parse JSON responses.
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+// The app is launched from UniSwapApplication.main(), which starts the
+// Spring Boot backend AND then opens the Java Swing desktop window.
+// Using mainClassName / .set(...) here (rather than the `mainClass = '...'`
+// shorthand) because the shorthand needs a fairly recent Gradle version -
+// .set(...) works on every Gradle version that has the application plugin,
+// which is safer since we don't know what Gradle version is installed.
+application {
+    mainClass.set('com.uniswap.UniSwapApplication')
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
